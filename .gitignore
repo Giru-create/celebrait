@@ -1,0 +1,26 @@
+# Python virtual environments
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Secrets and credentials — never commit these
+.env
+.streamlit/secrets.toml
+
+# Streamlit cache
+.streamlit/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated outputs
+*.pdf
+*.log
+
+# Videos and large datasets
+*.mp4
+*.csv
+*.xlsx
