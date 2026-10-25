@@ -94,6 +94,19 @@ Downloadable Event Plan
 - Money-saving tips
 - Downloadable Markdown event plan
 
+### How Core Features Solve the Planning Problem
+
+| Feature | Problem Solved |
+| :--- | :--- |
+| **Personalized Event Concepts** | Resolves creative block, theme indecision, and lack of cohesive celebration styling. |
+| **Category-wise Budget Table** | Eliminates guesswork and budget overruns by distributing total funds across essential categories. |
+| **Dynamic Planning Timeline** | Solves task overload by calculating actual days remaining and grouping tasks into clear milestones. |
+| **Vendor Checklist & Questions** | Reduces booking mistakes by identifying necessary vendor types and critical vetting questions. |
+| **Day-of-Event Schedule** | Prevents day-of delays and confusion by establishing a structured hour-by-hour operational agenda. |
+| **Risk Precautions & Checklist** | Proactively mitigates hidden failure points (e.g., weather shifts, power backup, parking, guest surges). |
+| **Money-Saving Tips** | Prevents unnecessary debt or overspending with 5–7 actionable, quality-preserving cost cuts. |
+| **Downloadable Markdown Plan** | Ensures immediate portability so users can share, store, or edit the plan in any notes or task tool. |
+
 ## 9. Technology Stack
 
 | Layer              | Technology                                |

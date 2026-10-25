@@ -1,42 +1,57 @@
 # celebrait — GenAI-Powered Celebration & Event Planner
 
-**celebrait** is a lightweight, responsive Streamlit web application powered by the Google Gemini API (`google-genai`). It generates personalized event-planning outlines for weddings, birthdays, community gatherings, and celebrations in seconds.
+**celebrait** is a lightweight, responsive Streamlit web application powered by the Google Gemini API (`google-genai`). It transforms basic event details into a structured, personalized event-planning blueprint in seconds.
 
 ---
 
-## Project Status (Version 1)
+## 📌 Project Overview
+
+- **The Problem:** Planning celebrations—such as weddings, birthdays, or community gatherings—is fragmented, stressful, and time-consuming. Organizers must balance themes, budgets, vendor bookings, schedules, and unexpected risks. Most people either hire expensive event planners or struggle manually with scattered spreadsheets, messy notes, and unverified online advice.
+- **The Solution:** celebrait acts as an intelligent starting point. By processing validated user inputs through Google Gemini, it synthesizes a comprehensive, localized planning outline covering concepts, budget breakdowns, countdown timelines, vendor questions, schedules, precautions, and cost-saving tips in clean Markdown.
+- **Target Users:**
+  - **Individuals & Families:** Planning birthdays, anniversaries, and family reunions.
+  - **Couples:** Organizing weddings on realistic budgets.
+  - **Students & Campus Clubs:** Planning college fests, farewells, and society events.
+  - **Community Organizers & Volunteers:** Coordinating local festivals, cultural celebrations, and neighborhood gatherings.
+  - **Small Event Coordinators:** Requiring a rapid, structured starting outline for client consultations.
+
+---
+
+## 🚀 Project Status (Version 1)
 
 Version 1 is fully implemented, tested, and deployed:
 
 - **Implemented:** Streamlit UI, input validation, secure Gemini integration (`google-genai` with `gemini-3.8-flash`), structured seven-section Markdown event plan, Markdown download (`event_plan.md`), verification disclaimer, safe error handling, and Streamlit Community Cloud deployment.
-- **Tested:** Valid event generation across small/large budgets and guest counts, invalid-input validation, missing API key handling with setup guidance, Gemini error handling (authentication, quota, server, network), Markdown rendering, and download verification.
+- **Tested:** Valid event generation across small/large budgets and guest counts, invalid-input validation, missing API key handling with setup guidance, Gemini error handling (authentication, quota, server, network), Markdown rendering, and download verification. (See [TESTING.md](TESTING.md)).
 - **Deployed:** The application is live on Streamlit Community Cloud with `GEMINI_API_KEY` securely configured in Streamlit Secrets.
 
 ---
 
-## Features
+## ✨ How Core Features Solve the Planning Problem
 
-- **Personalized Event Concepts:** 3 theme options and 1 customized event concept.
-- **Category-wise Budget Plan:** Formatted in Markdown tables with clear estimates scaled to your guest count and currency.
-- **Dynamic Planning Timeline:** Actionable task countdown grouped according to days remaining until the event.
-- **Vendor Checklist & Inquiries:** Category-specific vendor recommendations and key questions to ask before booking.
-- **Day-of-Event Schedule:** Hour-by-hour timeline designed for smooth event day coordination.
-- **Risk Precautions & Checklist:** Identification of common regional/event risks and mitigation strategies.
-- **Money-Saving Tips:** 5–7 practical ways to reduce expenses without compromising event quality.
-- **One-Click Markdown Download:** Download your event plan as `event_plan.md`.
+| Core Feature | How It Solves the Problem |
+| :--- | :--- |
+| **Personalized Event Concepts** | Overcomes theme indecision by generating 3 tailored theme options and 1 customized event concept. |
+| **Category-wise Budget Table** | Prevents budget overruns with a clean Markdown table distributing funds realistically across catering, venue, décor, and photography. |
+| **Dynamic Planning Timeline** | Eliminates procrastination and panic by calculating actual days remaining and grouping milestones logically. |
+| **Vendor Checklist & Inquiries** | Reduces vendor booking anxiety with category-specific vendor checklists and key questions to ask before hiring. |
+| **Day-of-Event Schedule** | Prevents chaos and delays on celebration day with a practical hour-by-hour operational timeline. |
+| **Risk Precautions & Checklist** | Identifies easily overlooked failure points (weather, power, parking, guest surges) and pairs them with practical precautions. |
+| **Money-Saving Tips** | Prevents unnecessary debt with 5–7 actionable cost-cutting tips that maintain event quality. |
+| **One-Click Markdown Download** | Ensures immediate plan portability so users can download `event_plan.md` to edit or share anywhere. |
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-- **Framework:** Streamlit
+- **Frontend / Framework:** Streamlit
 - **Language:** Python 3.10+
 - **AI SDK:** `google-genai` (Model: `gemini-3.8-flash`)
 - **Deployment:** Streamlit Community Cloud
 
 ---
 
-## Setup & Local Installation
+## 💻 Setup & Local Installation
 
 ### 1. Clone the repository
 ```bash
@@ -96,7 +111,7 @@ Open your browser at `http://localhost:8501`.
 
 ---
 
-## Deployment to Streamlit Community Cloud
+## ☁️ Deployment to Streamlit Community Cloud
 
 1. Push this repository to a public GitHub repository.
 2. Sign in to [share.streamlit.io](https://share.streamlit.io).
@@ -109,14 +124,28 @@ Open your browser at `http://localhost:8501`.
 
 ---
 
-## Security & Privacy
+## 🔒 Security & Privacy
 
-- API keys are never hardcoded, logged, or committed to GitHub.
-- Credentials and local secrets are excluded from Git via `.gitignore`.
-- Streamlit Secrets and environment variables are used for secure key injection.
+- **Zero Hardcoded Credentials:** API keys are never stored in code, logs, terminal outputs, or git commits.
+- **Protected Environment:** `.gitignore` excludes `.env`, `.streamlit/secrets.toml`, virtual environments, and private generated files.
+- **Safe Error Categorization:** API errors are safely grouped into user-friendly notifications (authentication, quota, configuration, server, network) without leaking stack traces or raw response headers.
 
 ---
 
-## Disclaimer
+## ⚠️ Limitations
 
-celebrait provides AI-generated planning estimates. Vendor names, pricing, availability, and local recommendations must be independently verified prior to booking or financial commitments.
+- **Planning Estimates Only:** All vendor names, rates, and availability generated by the model are AI estimates and must be independently verified locally.
+- **No Direct Bookings / Payments:** celebrait provides planning guidance; it does not process financial transactions, contracts, or live vendor bookings.
+- **Not a Replacement for On-Site Directors:** The app serves as an intelligent planning assistant, not an on-site event coordinator.
+
+---
+
+## 🔮 Future Scope (Beyond Version 1)
+
+The following capabilities are reserved for future phases:
+- Guest RSVP tracking and digital invitations.
+- Live vendor pricing and verified directory integrations.
+- Expense tracker with dynamic remaining-budget calculations.
+- Direct PDF export option.
+- Multilingual support, including Hindi and regional Indian languages.
+- Interactive AI chat assistant for follow-up adjustments.

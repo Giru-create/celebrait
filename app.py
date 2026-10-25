@@ -1,6 +1,6 @@
 """
 celebrait — GenAI-Powered Celebration & Event Planner
-app.py — Main Streamlit application (Phases 1-4: UI, validation, Gemini integration, structured output)
+app.py — Main Streamlit application (Version 1: UI, validation, Gemini integration, structured output)
 
 Sections:
     1. Page configuration
@@ -540,14 +540,14 @@ def main():
 
     # ---- Button logic ------------------------------------------------------
     if generate_clicked:
-        is_valid, errors = validate_event_data(event_data)
+        is_valid, validation_errors = validate_event_data(event_data)
 
         if not is_valid:
-            # Show all validation problems together so the user can fix
-            # everything in one pass
-            error_lines = "\n".join(f"- {e}" for e in errors)
+            # Show all validation problems together with accessible indicators
+            # so the user can address everything in one pass
+            error_lines = "\n".join(f"- ⚠️ {e}" for e in validation_errors)
             st.warning(
-                f"Please fix the following before generating your event plan:\n\n"
+                f"**Please correct the following fields before generating your event plan:**\n\n"
                 f"{error_lines}"
             )
         else:
@@ -599,6 +599,8 @@ def main():
                                 data=plan_text,
                                 file_name="event_plan.md",
                                 mime="text/markdown",
+                                help="Download your generated event plan as a Markdown (.md) file",
+                                key="download_event_plan_btn",
                             )
 
                     except Exception as exc:
