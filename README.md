@@ -4,6 +4,16 @@
 
 ---
 
+## Project Status (Version 1)
+
+Version 1 is fully implemented, tested, and deployed:
+
+- **Implemented:** Streamlit UI, input validation, secure Gemini integration (`google-genai` with `gemini-3.8-flash`), structured seven-section Markdown event plan, Markdown download (`event_plan.md`), verification disclaimer, safe error handling, and Streamlit Community Cloud deployment.
+- **Tested:** Valid event generation across small/large budgets and guest counts, invalid-input validation, missing API key handling with setup guidance, Gemini error handling (authentication, quota, server, network), Markdown rendering, and download verification.
+- **Deployed:** The application is live on Streamlit Community Cloud with `GEMINI_API_KEY` securely configured in Streamlit Secrets.
+
+---
+
 ## Features
 
 - **Personalized Event Concepts:** 3 theme options and 1 customized event concept.

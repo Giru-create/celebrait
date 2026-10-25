@@ -135,31 +135,38 @@ The prompt instructs Gemini to return:
 
 The prompt also instructs the model to mark all prices and vendor information as estimates and avoid presenting unverified information as fact.
 
-## 12. Implementation Plan
+## 12. Implementation & Project Status
 
-### Phase 1: Basic UI
+Version 1 is now fully implemented, tested, and deployed:
 
-Create the Streamlit interface with sidebar inputs and a generate button.
+- **Implemented:**
+  - Streamlit UI with responsive sidebar input form and clean main display
+  - Robust client-side input validation
+  - Secure Gemini API integration using the official `google-genai` SDK (`gemini-3.8-flash`)
+  - Structured prompt building generating a complete seven-section Markdown event plan:
+    1. Event Concept
+    2. Budget Plan (Markdown table)
+    3. Planning Timeline
+    4. Vendor Checklist
+    5. Day-of-Event Schedule
+    6. Risk Checklist
+    7. Money-Saving Tips
+  - One-click Markdown plan download (`event_plan.md`)
+  - Verification disclaimer visible below generated plan and in footer
+  - Safe error categorization protecting credentials, raw headers, and stack traces
+  - Transient server error (5xx) retry logic with backoff
+  - Live deployment on Streamlit Community Cloud
 
-### Phase 2: Input validation
+- **Tested:**
+  - Valid event generation (wedding with ₹50,000, birthday with 20 guests, community event with 200 guests)
+  - Strict invalid-input validation (missing event type, missing city, zero/negative budget, invalid guest count, past date, missing currency)
+  - Missing API key handling with setup guidance
+  - Gemini error handling (authentication, model misconfiguration, quota, temporary server error, network)
+  - Markdown rendering and table formatting
+  - `event_plan.md` download matching displayed content
 
-Validate required fields, guest count, budget, and event date.
-
-### Phase 3: Gemini integration
-
-Connect the app to the Gemini API using an environment variable.
-
-### Phase 4: Structured output
-
-Display the AI response using Streamlit Markdown and add a download button.
-
-### Phase 5: Testing
-
-Test weddings, birthdays, community events, low budgets, large guest counts, missing inputs, and missing API keys.
-
-### Phase 6: Deployment
-
-Push the project to GitHub and deploy it using Streamlit Community Cloud.
+- **Deployed:**
+  - The application is live on Streamlit Community Cloud with `GEMINI_API_KEY` configured securely in Streamlit Secrets.
 
 ## 13. File Structure
 

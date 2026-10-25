@@ -267,4 +267,20 @@ Markdown event plan
 
 The prompt must always include:
 
-- Event
+- Event type
+- Event date and calculated days countdown
+- Expected number of guests
+- Total budget and specified currency
+- City or region
+- Optional theme or vibe
+- Optional special requirements
+
+## 7. Version 1 Architecture & Deployment Status
+
+Version 1 is implemented, tested, and deployed in accordance with this specification:
+
+- **Layer 1 (Presentation):** Streamlit UI (`app.py`), sidebar form, input validation error summaries, Markdown output rendering, disclaimer callout, and `event_plan.md` download button.
+- **Layer 2 (Application):** Input validator (`validate_event_data`) enforcing required fields and boundaries; prompt builder (`build_event_prompt`) assembling the structured seven-section prompt.
+- **Layer 3 (AI Service):** Google Gemini API integration via `google-genai` using model `gemini-3.8-flash`, with secure key loading (`load_api_key`) prioritizing Streamlit Secrets with environment variable fallback, safe exception mapping (`handle_gemini_error`), and transient error retry logic.
+- **Layer 4 (Output):** Direct Streamlit Markdown rendering and one-click file download.
+- **Deployment:** Live on Streamlit Community Cloud with `GEMINI_API_KEY` configured in Streamlit Secrets.
