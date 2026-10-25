@@ -53,22 +53,29 @@ pip install -r requirements.txt
 ### 4. Configure your Gemini API key
 Get a free Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey).
 
-Set the environment variable in your terminal:
+You can configure your key using either an environment variable or a local Streamlit Secrets file:
 
-**Windows (Command Prompt):**
-```cmd
-set GEMINI_API_KEY=your_gemini_api_key_here
+**Option A — Environment Variable (Recommended for Local Dev):**
+- **Windows (Command Prompt):**
+  ```cmd
+  set GEMINI_API_KEY=your_gemini_api_key_here
+  ```
+- **Windows (PowerShell):**
+  ```powershell
+  $env:GEMINI_API_KEY="your_gemini_api_key_here"
+  ```
+- **macOS / Linux:**
+  ```bash
+  export GEMINI_API_KEY="your_gemini_api_key_here"
+  ```
+
+**Option B — Local Streamlit Secrets (`.streamlit/secrets.toml`):**
+Create `.streamlit/secrets.toml` in the project root:
+```toml
+GEMINI_API_KEY = "your_gemini_api_key_here"
 ```
 
-**Windows (PowerShell):**
-```powershell
-$env:GEMINI_API_KEY="your_gemini_api_key_here"
-```
-
-**macOS / Linux:**
-```bash
-export GEMINI_API_KEY="your_gemini_api_key_here"
-```
+> ⚠️ **Security Warning:** Never commit `.streamlit/secrets.toml`, `.env`, or hardcode API keys into code. These files are listed in `.gitignore` to prevent credential exposure.
 
 ### 5. Run the application
 ```bash
