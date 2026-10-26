@@ -155,7 +155,7 @@ Version 1 is now fully implemented, tested, and deployed:
 - **Implemented:**
   - Streamlit UI with responsive sidebar input form and clean main display
   - Robust client-side input validation
-  - Secure Gemini API integration using the official `google-genai` SDK (`gemini-3.8-flash`)
+  - Secure Gemini API integration using the official `google-genai` SDK (`gemini-3.5-flash-lite`) with progressive response streaming
   - Structured prompt building generating a complete seven-section Markdown event plan:
     1. Event Concept
     2. Budget Plan (Markdown table)
@@ -185,9 +185,13 @@ Version 1 is now fully implemented, tested, and deployed:
 
 ```text
 celebrait/
+├── .streamlit/
+│   └── config.toml
 ├── AGENTS.md
+├── ARCHITECTURE.md
 ├── PROJECT_REPORT.md
 ├── README.md
+├── TESTING.md
 ├── app.py
 ├── requirements.txt
 └── .gitignore

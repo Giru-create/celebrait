@@ -9,9 +9,6 @@ __pycache__/
 .env
 .streamlit/secrets.toml
 
-# Streamlit cache
-.streamlit/
-
 # OS files
 .DS_Store
 Thumbs.db

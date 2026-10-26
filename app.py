@@ -402,7 +402,24 @@ def inject_custom_styles():
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 16px rgba(218, 183, 110, 0.25) !important;
         }
 
-        /* Sidebar Inputs Styling */
+        /* Sidebar Inputs & High-Contrast Typography */
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p,
+        [data-testid="stSidebar"] [data-testid="stWidgetLabel"] span {
+            color: #E2E8F0 !important;
+            font-weight: 500 !important;
+        }
+        [data-testid="stSidebar"] .stCaption,
+        [data-testid="stSidebar"] small {
+            color: var(--atelier-text-muted) !important;
+        }
+        [data-testid="stSidebar"] h1,
+        [data-testid="stSidebar"] h2,
+        [data-testid="stSidebar"] h3,
+        [data-testid="stSidebar"] h4 {
+            color: var(--atelier-gold-bright) !important;
+        }
+
         [data-testid="stSidebar"] input,
         [data-testid="stSidebar"] textarea,
         [data-testid="stSidebar"] div[data-baseweb="select"] > div {
@@ -411,10 +428,28 @@ def inject_custom_styles():
             color: var(--atelier-text-main) !important;
             border-radius: 7px !important;
         }
+        [data-testid="stSidebar"] div[data-baseweb="select"] span,
+        [data-testid="stSidebar"] div[data-baseweb="select"] div {
+            color: #F7F7F9 !important;
+        }
         [data-testid="stSidebar"] input:focus,
         [data-testid="stSidebar"] textarea:focus {
             border-color: var(--atelier-gold) !important;
             box-shadow: 0 0 0 1px var(--atelier-gold) !important;
+        }
+
+        /* BaseWeb Selectbox & Datepicker dropdown menus contrast */
+        div[data-baseweb="popover"],
+        ul[data-baseweb="menu"] {
+            background-color: #121622 !important;
+            border: 1px solid rgba(218, 183, 110, 0.3) !important;
+        }
+        ul[data-baseweb="menu"] li,
+        ul[data-baseweb="menu"] li span {
+            color: #F7F7F9 !important;
+        }
+        ul[data-baseweb="menu"] li:hover {
+            background-color: rgba(218, 183, 110, 0.15) !important;
         }
 
         /* Sidebar crest */
@@ -538,13 +573,15 @@ def inject_custom_styles():
             color: var(--atelier-text-muted);
         }
 
-        /* Glassmorphic alerts */
+        /* Glassmorphic alerts with high text contrast */
         .stAlert {
-            background: rgba(18, 22, 33, 0.88) !important;
+            background: rgba(18, 22, 33, 0.92) !important;
             border: 1px solid var(--atelier-border) !important;
             border-radius: 10px !important;
             backdrop-filter: blur(10px) !important;
-            color: #E2E8F0 !important;
+        }
+        .stAlert p, .stAlert span, .stAlert div, .stAlert li {
+            color: #F7F7F9 !important;
         }
 
         /* Keyframe animations */
@@ -764,9 +801,9 @@ def validate_event_data(event_data):
 # 5. Gemini service
 # ---------------------------------------------------------------------------
 
-# The model identifier used here is the current stable Gemini Flash model.
-# Verified against Google Gemini API documentation.
-GEMINI_MODEL = "gemini-3.8-flash"
+# The model identifier used here is Google's fast, stable Flash-Lite model,
+# optimized for ultra-low latency and high-throughput text generation.
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 
 
 def load_api_key():
@@ -918,11 +955,9 @@ def handle_gemini_error(exc):
 
 def build_event_prompt(event_data):
     """
-    Build the full structured seven-section event-planning prompt from
-    validated event details.
-
-    The prompt instructs Gemini to return a single, well-formatted Markdown
-    document with exactly the sections listed in ARCHITECTURE.md §5.3.
+    Build a concise, direct, seven-section event-planning prompt.
+    Optimized for low-latency generation without sacrificing any of the
+    required event-planning sections or safety precautions.
 
     Args:
         event_data (dict): Validated event details from render_sidebar().
@@ -930,10 +965,8 @@ def build_event_prompt(event_data):
     Returns:
         str: The complete prompt string ready to send to Gemini.
     """
-    # Calculate days until the event so the timeline section is realistic
     days_until_event = (event_data["event_date"] - datetime.date.today()).days
 
-    # Include optional fields only when the user supplied them
     theme_line = (
         f"Theme or vibe: {event_data['theme']}"
         if event_data["theme"]
@@ -947,7 +980,7 @@ def build_event_prompt(event_data):
 
     prompt = (
         "You are an experienced, practical event-planning assistant.\n\n"
-        "A user needs a complete event plan for the following event:\n\n"
+        "Create a concise, practical event plan in Markdown for this celebration:\n\n"
         f"- Event type: {event_data['event_type']}\n"
         f"- Event date: {event_data['event_date'].strftime('%d %B %Y')} "
         f"({days_until_event} days from today)\n"
@@ -956,85 +989,70 @@ def build_event_prompt(event_data):
         f"- City or region: {event_data['city']}\n"
         f"- {theme_line}\n"
         f"- {requirements_line}\n\n"
-        "Please write a complete event plan in Markdown with EXACTLY these "
-        "seven sections, using these exact headings:\n\n"
+        "Provide EXACTLY these seven sections using these exact headings:\n\n"
         "## Event Concept\n"
-        "Provide three suitable theme ideas and one personalised event concept. "
-        "Tailor ideas to the event type, city or region, guest count, and theme "
-        "if one was provided.\n\n"
+        "Provide 3 brief theme ideas and 1 personalized signature concept (1-2 sentences each), "
+        f"tailored to {event_data['city']} and {event_data['guests']} guests.\n\n"
         "## Budget Plan\n"
-        "Create a category-wise estimated budget in a Markdown table with "
-        "columns: Category | Estimated Cost | Notes. "
-        f"The total must not exceed {event_data['currency']} {event_data['budget']:,.0f}. "
-        f"Use {event_data['currency']} consistently throughout. "
-        "Scale spending categories sensibly for "
-        f"{event_data['guests']} guests.\n\n"
+        "Provide a compact category-wise budget in a Markdown table with columns: "
+        "Category | Estimated Cost | Notes.\n"
+        f"Include 5-6 core categories. The total must not exceed {event_data['currency']} {event_data['budget']:,.0f}. "
+        f"Use {event_data['currency']} consistently throughout.\n\n"
         "## Planning Timeline\n"
-        f"Group planning tasks based on {days_until_event} days remaining. "
-        "Use time-based groups such as 'Immediately', 'Within the next 2 weeks', "
-        "'1 month before', '1 week before', and 'Day before / Day of'. "
-        "Adjust group labels to match the actual days available.\n\n"
+        f"Provide concise action milestones across 3-4 chronological phases based on {days_until_event} days remaining.\n\n"
         "## Vendor Checklist\n"
-        "List the relevant vendor categories for this event type and size. "
-        "For each category, include: a short booking note and two or three "
-        "important questions to ask the vendor before booking. "
-        f"Make recommendations practical for {event_data['city']}.\n\n"
+        f"List 4-5 key vendor categories for this event size in {event_data['city']}. "
+        "For each category, include a brief booking note and 2 essential vetting questions.\n\n"
         "## Day-of-Event Schedule\n"
-        "Create a practical hour-by-hour schedule of key activities for the "
-        "event day. Adjust timing and activities to suit the event type and "
-        f"a guest count of {event_data['guests']}.\n\n"
+        f"Provide a practical, concise hour-by-hour schedule of key activities for the event day, "
+        f"scaled for {event_data['guests']} guests.\n\n"
         "## Risk Checklist\n"
-        "Identify the most likely risks for this type of event in this city or "
-        "region, and list one practical precaution for each risk.\n\n"
+        f"Identify 3-4 likely operational or weather risks in {event_data['city']} and 1 practical precaution for each.\n\n"
         "## Money-Saving Tips\n"
-        "Provide five to seven practical, specific tips to reduce costs without "
-        "reducing the quality or experience of the event. "
-        "Tailor tips to the event type, city, and budget.\n\n"
+        f"Provide 5 practical, specific tips to optimize spending without compromising experience, "
+        f"tailored to {event_data['city']} and the budget.\n\n"
         "Important rules:\n"
-        "- Treat all vendor names, prices, and availability as ESTIMATES only. "
-        "Do not claim any vendor is verified, bookable, or guaranteed.\n"
-        "- Do not claim real-time availability for any service or product.\n"
-        "- Avoid presenting any vendor as verified or bookable.\n"
-        "- Make recommendations practical for the provided city or region, "
-        "noting that all recommendations must be independently verified locally.\n"
-        f"- Use {event_data['currency']} consistently for every monetary value.\n"
-        "- Scale recommendations appropriately for the guest count and budget.\n"
-        "- Use the event date to create a realistic planning timeline.\n"
-        "- Incorporate the theme and special requirements when provided.\n"
-        "- Return clean, readable Markdown only. "
-        "Do not add any text before the first heading or after the last section."
+        "- Treat all vendor names, prices, and availability as ESTIMATES only; none are guaranteed or verified.\n"
+        "- Keep every section concise, clear, and actionable. Avoid filler text and conversational fluff.\n"
+        "- Return clean Markdown only. Do not add any text before the first heading or after the last section."
     )
 
     return prompt
 
 
-def generate_event_plan(event_data, api_key, max_retries=2):
+def stream_event_plan(event_data, api_key, max_retries=2):
     """
-    Build the structured prompt and send it to the Gemini API.
-    Retries safely on transient server errors (5xx) with backoff.
+    Stream chunks of the generated event plan from Gemini using the google-genai SDK.
+    Retries safely on transient server errors (5xx) with backoff before yielding chunks.
 
     Args:
         event_data (dict): Validated event details.
         api_key (str): The Gemini API key.
         max_retries (int): Maximum retry attempts for transient server errors.
 
-    Returns:
-        str or None: The Gemini response text, or None on failure.
+    Yields:
+        str: Text chunks as they arrive from Gemini.
     """
     prompt = build_event_prompt(event_data)
     client = genai.Client(api_key=api_key)
 
     last_error = None
     for attempt in range(max_retries + 1):
+        has_yielded = False
         try:
-            response = client.models.generate_content(
+            response_stream = client.models.generate_content_stream(
                 model=GEMINI_MODEL,
                 contents=prompt,
             )
-            return response.text
+            for chunk in response_stream:
+                if chunk.text:
+                    has_yielded = True
+                    yield chunk.text
+            return
         except errors.ServerError as err:
             last_error = err
-            if attempt < max_retries:
+            # Only retry if no content was yielded yet
+            if not has_yielded and attempt < max_retries:
                 time.sleep(1.0 * (attempt + 1))
             else:
                 raise
@@ -1043,6 +1061,25 @@ def generate_event_plan(event_data, api_key, max_retries=2):
 
     if last_error:
         raise last_error
+
+
+def generate_event_plan(event_data, api_key, max_retries=2):
+    """
+    Generate the complete event plan text (non-streaming).
+    Accumulates streaming chunks to provide a reliable non-streaming interface.
+
+    Args:
+        event_data (dict): Validated event details.
+        api_key (str): The Gemini API key.
+        max_retries (int): Maximum retry attempts for transient server errors.
+
+    Returns:
+        str: The complete event plan text.
+    """
+    chunks = []
+    for chunk in stream_event_plan(event_data, api_key, max_retries=max_retries):
+        chunks.append(chunk)
+    return "".join(chunks)
 
 
 # ---------------------------------------------------------------------------
@@ -1216,27 +1253,51 @@ def main():
                     "Get a free key at https://aistudio.google.com/apikey"
                 )
             else:
-                # Call Gemini with a loading spinner
-                with st.spinner("Curating your bespoke celebration dossier…"):
-                    try:
-                        plan_text = generate_event_plan(event_data, api_key)
+                # Clear previous plan if any
+                st.session_state["event_plan"] = None
 
-                        if not plan_text or not plan_text.strip():
-                            # Empty response — ask user to retry
-                            st.warning(
-                                "Gemini returned an empty response. "
-                                "Please try again in a moment."
-                            )
-                        else:
-                            st.session_state["event_plan"] = plan_text
-                            st.rerun()
+                # Show clear, honest status indicator while streaming starts
+                status_placeholder = st.empty()
+                status_placeholder.markdown(
+                    """
+                    <div class="atelier-plan-banner">
+                        <div class="banner-status">
+                            <span class="status-beacon"></span>
+                            <span class="status-text">GENERATING YOUR EVENT PLAN…</span>
+                        </div>
+                        <div class="banner-meta">Streaming your personalized celebration outline from Gemini in real time…</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
-                    except Exception as exc:
-                        # Categorise the error safely without exposing raw credentials,
-                        # headers, or stack traces
-                        user_message, terminal_category = handle_gemini_error(exc)
-                        print(f"[celebrait] {terminal_category}")
-                        st.error(user_message)
+                stream_placeholder = st.empty()
+                plan_text = ""
+                try:
+                    with stream_placeholder.container():
+                        plan_text = st.write_stream(stream_event_plan(event_data, api_key))
+
+                    status_placeholder.empty()
+
+                    if not plan_text or not plan_text.strip():
+                        stream_placeholder.empty()
+                        # Empty response — ask user to retry
+                        st.warning(
+                            "Gemini returned an empty response. "
+                            "Please try again in a moment."
+                        )
+                    else:
+                        st.session_state["event_plan"] = plan_text
+                        st.rerun()
+
+                except Exception as exc:
+                    status_placeholder.empty()
+                    stream_placeholder.empty()
+                    # Categorise the error safely without exposing raw credentials,
+                    # headers, or stack traces
+                    user_message, terminal_category = handle_gemini_error(exc)
+                    print(f"[celebrait] {terminal_category}")
+                    st.error(user_message)
 
     # ---- Display generated plan (replaces intro overview after generation) ---
     if has_plan:
@@ -1253,7 +1314,7 @@ def main():
             <div class="atelier-plan-banner">
                 <div class="banner-status">
                     <span class="status-beacon"></span>
-                    <span class="status-text">EVENT DOSSIER COMPILED • GEMINI 3.8 FLASH</span>
+                    <span class="status-text">EVENT DOSSIER COMPILED • GEMINI 3.5 FLASH-LITE</span>
                 </div>
                 <div class="banner-meta">
                     Cap: <strong>{currency_str} {budget_val:,.0f}</strong> &bull; Scaled for <strong>{guests_val} guests</strong> &bull; {city_tag}

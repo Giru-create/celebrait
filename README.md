@@ -21,7 +21,7 @@
 
 Version 1 is fully implemented, tested, and deployed:
 
-- **Implemented:** Streamlit UI, input validation, secure Gemini integration (`google-genai` with `gemini-3.8-flash`), structured seven-section Markdown event plan, Markdown download (`event_plan.md`), verification disclaimer, safe error handling, and Streamlit Community Cloud deployment.
+- **Implemented:** Streamlit UI, input validation, progressive response streaming, secure Gemini integration (`google-genai` with `gemini-3.5-flash-lite`), structured seven-section Markdown event plan, Markdown download (`event_plan.md`), verification disclaimer, safe error handling, and Streamlit Community Cloud deployment.
 - **Tested:** Valid event generation across small/large budgets and guest counts, invalid-input validation, missing API key handling with setup guidance, Gemini error handling (authentication, quota, server, network), Markdown rendering, and download verification. (See [TESTING.md](TESTING.md)).
 - **Deployed:** The application is live on Streamlit Community Cloud with `GEMINI_API_KEY` securely configured in Streamlit Secrets.
 
@@ -46,7 +46,7 @@ Version 1 is fully implemented, tested, and deployed:
 
 - **Frontend / Framework:** Streamlit
 - **Language:** Python 3.10+
-- **AI SDK:** `google-genai` (Model: `gemini-3.8-flash`)
+- **AI SDK:** `google-genai` (Model: `gemini-3.5-flash-lite`)
 - **Deployment:** Streamlit Community Cloud
 
 ---

@@ -73,10 +73,13 @@ The project must follow this structure:
 
 ```text
 celebrait/
+├── .streamlit/
+│   └── config.toml
 ├── AGENTS.md
 ├── ARCHITECTURE.md
 ├── PROJECT_REPORT.md
 ├── README.md
+├── TESTING.md
 ├── app.py
 ├── requirements.txt
 └── .gitignore
@@ -281,6 +284,6 @@ Version 1 is implemented, tested, and deployed in accordance with this specifica
 
 - **Layer 1 (Presentation):** Streamlit UI (`app.py`), sidebar form, input validation error summaries, Markdown output rendering, disclaimer callout, and `event_plan.md` download button.
 - **Layer 2 (Application):** Input validator (`validate_event_data`) enforcing required fields and boundaries; prompt builder (`build_event_prompt`) assembling the structured seven-section prompt.
-- **Layer 3 (AI Service):** Google Gemini API integration via `google-genai` using model `gemini-3.8-flash`, with secure key loading (`load_api_key`) prioritizing Streamlit Secrets with environment variable fallback, safe exception mapping (`handle_gemini_error`), and transient error retry logic.
+- **Layer 3 (AI Service):** Google Gemini API integration via `google-genai` using model `gemini-3.5-flash-lite` with progressive response streaming (`stream_event_plan`), secure key loading (`load_api_key`) prioritizing Streamlit Secrets with environment variable fallback, safe exception mapping (`handle_gemini_error`), and transient error retry logic.
 - **Layer 4 (Output):** Direct Streamlit Markdown rendering and one-click file download.
 - **Deployment:** Live on Streamlit Community Cloud with `GEMINI_API_KEY` configured in Streamlit Secrets.
