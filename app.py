@@ -1,14 +1,15 @@
 """
 celebrait — GenAI-Powered Celebration & Event Planner
-app.py — Main Streamlit application (Version 1: UI, validation, Gemini integration, structured output)
+app.py — Main Streamlit application
 
 Sections:
-    1. Page configuration
-    2. UI helpers
-    3. Sidebar event input form
-    4. Input validation
-    5. Gemini service
-    6. Main application area
+    1. Page configuration & constants
+    2. Custom styles
+    3. UI components
+    4. Sidebar event form
+    5. Input validation
+    6. Gemini service
+    7. Main application
 """
 
 import datetime
@@ -21,7 +22,7 @@ from google.genai import errors
 
 
 # ---------------------------------------------------------------------------
-# 1. Page configuration
+# 1. Page configuration & constants
 # ---------------------------------------------------------------------------
 
 st.set_page_config(
@@ -30,11 +31,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
-
-
-# ---------------------------------------------------------------------------
-# 2. UI helpers
-# ---------------------------------------------------------------------------
 
 DISCLAIMER = (
     "**Disclaimer:** celebrait provides AI-generated planning estimates. "
@@ -64,11 +60,13 @@ CURRENCIES = [
     "AUD",
 ]
 
+# Fast, lightweight Gemini model for low-latency text generation.
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 
-def show_disclaimer():
-    """Render the disclaimer in a visually distinct info box."""
-    st.info(DISCLAIMER)
 
+# ---------------------------------------------------------------------------
+# 2. Custom styles
+# ---------------------------------------------------------------------------
 
 def inject_custom_styles():
     """
@@ -103,7 +101,7 @@ def inject_custom_styles():
         /* Ambient canvas depth with layered celestial glows */
         .stApp {
             background-color: var(--atelier-bg-canvas);
-            background-image: 
+            background-image:
                 radial-gradient(circle at 18% 10%, rgba(218, 183, 110, 0.08) 0%, transparent 42%),
                 radial-gradient(circle at 82% 80%, rgba(224, 122, 95, 0.06) 0%, transparent 40%),
                 radial-gradient(rgba(218, 183, 110, 0.12) 1px, transparent 1px);
@@ -612,10 +610,208 @@ def inject_custom_styles():
 
 
 # ---------------------------------------------------------------------------
-# 3. Sidebar event input form
+# 3. UI components
 # ---------------------------------------------------------------------------
 
-def render_sidebar():
+def render_header():
+    """Render the branded hero section."""
+    st.markdown(
+        """
+        <div class="atelier-hero-wrap">
+            <div class="atelier-crest">
+                <span class="atelier-crest-spark">✦</span>
+                <span>GENAI CELEBRATION ATELIER</span>
+                <span class="atelier-crest-spark">✦</span>
+            </div>
+            <h1 class="atelier-brand-title">celebrait</h1>
+            <p class="atelier-tagline">
+                Orchestrating bespoke celebrations with cinematic vision, fiscal rigor, and tailored local intelligence.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_event_intelligence(event_data):
+    """
+    Render the pre-generation overview: live event intelligence HUD,
+    curation inspiration seeds, and feature cards.
+
+    Returns:
+        bool: True if the main Generate button was clicked.
+    """
+    today = datetime.date.today()
+    event_date = event_data.get("event_date", today + datetime.timedelta(days=30))
+    days_until = max(0, (event_date - today).days)
+    guests = max(1, int(event_data.get("guests", 50)))
+    budget = float(event_data.get("budget", 50000))
+    unit_spend = budget / guests
+    raw_currency = str(event_data.get("currency", "INR (Rs.)"))
+    currency_code = raw_currency.split()[0]
+    city_display = event_data.get("city") or "Location Pending"
+
+    # Live Event Intelligence HUD Ribbon
+    st.markdown(
+        f"""
+        <div class="atelier-hud">
+            <div class="hud-metric">
+                <span class="hud-label">OCCASION</span>
+                <span class="hud-val">{event_data.get('event_type', 'Celebration')}</span>
+            </div>
+            <div class="hud-sep"></div>
+            <div class="hud-metric">
+                <span class="hud-label">COUNTDOWN</span>
+                <span class="hud-val">{days_until} Days</span>
+            </div>
+            <div class="hud-sep"></div>
+            <div class="hud-metric">
+                <span class="hud-label">SCALE</span>
+                <span class="hud-val">{guests:,} Guests</span>
+            </div>
+            <div class="hud-sep"></div>
+            <div class="hud-metric">
+                <span class="hud-label">ALLOCATION / HEAD</span>
+                <span class="hud-val">{currency_code} {unit_spend:,.0f}</span>
+            </div>
+            <div class="hud-sep"></div>
+            <div class="hud-metric">
+                <span class="hud-label">TERRITORY</span>
+                <span class="hud-val">{city_display}</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Curation Inspiration Seeds
+    st.markdown(
+        """
+        <div class="atelier-seeds-bar">
+            <span class="seeds-title">CURATION SEEDS:</span>
+            <span class="seed-chip">👑 Heritage Royal Palace</span>
+            <span class="seed-chip">✨ Midnight Terrace Soirée</span>
+            <span class="seed-chip">🌿 Bohemian Meadow Gathering</span>
+            <span class="seed-chip">⚡ High-Voltage Milestone Gala</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Feature Cards (staggered CSS reveal)
+    st.markdown(
+        """
+        <div class="atelier-cards-grid">
+            <div class="atelier-card card-reveal-1">
+                <div class="card-num">01</div>
+                <div class="card-micro-tag">CREATIVE DIRECTION</div>
+                <div class="card-heading">Bespoke Concept</div>
+                <p class="card-body">Tailored visual themes, signature motifs, and atmospheric narratives grounded in your occasion.</p>
+            </div>
+            <div class="atelier-card card-reveal-2">
+                <div class="card-num">02</div>
+                <div class="card-micro-tag">FISCAL ARCHITECTURE</div>
+                <div class="card-heading">Budget Allocation</div>
+                <p class="card-body">Category spend plan scaled precisely to your attendee count with non-negotiable budget caps.</p>
+            </div>
+            <div class="atelier-card card-reveal-3">
+                <div class="card-num">03</div>
+                <div class="card-micro-tag">SUPPLIER DOSSIER</div>
+                <div class="card-heading">Vendor Checklist</div>
+                <p class="card-body">Essential service categories, local booking recommendations, and incisive vetting questions.</p>
+            </div>
+            <div class="atelier-card card-reveal-4">
+                <div class="card-num">04</div>
+                <div class="card-micro-tag">OPERATIONAL RUN-OF-SHOW</div>
+                <div class="card-heading">Schedule & Risks</div>
+                <p class="card-body">Hour-by-hour choreography, local risk mitigation, and insider cost-saving maneuvers.</p>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
+    return st.button(
+        "Generate Event Plan",
+        type="primary",
+        use_container_width=False,
+        key="main_generate_btn",
+    )
+
+
+def render_event_plan(event_data, plan_text):
+    """Render the compiled event plan with status banner, download buttons, and disclaimer."""
+    city_tag = event_data.get("city") or "Local Region"
+    budget_val = float(event_data.get("budget", 50000))
+    currency_str = event_data.get("currency", "INR (Rs.)")
+    guests_val = event_data.get("guests", 50)
+
+    # Compiled dossier status banner
+    st.markdown(
+        f"""
+        <div class="atelier-plan-banner">
+            <div class="banner-status">
+                <span class="status-beacon"></span>
+                <span class="status-text">EVENT DOSSIER COMPILED • GEMINI 3.5 FLASH-LITE</span>
+            </div>
+            <div class="banner-meta">
+                Cap: <strong>{currency_str} {budget_val:,.0f}</strong> &bull; Scaled for <strong>{guests_val} guests</strong> &bull; {city_tag}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Heading and top download button
+    top_head_col, top_dl_col = st.columns([3, 1])
+    with top_head_col:
+        st.subheader("Your Event Plan")
+    with top_dl_col:
+        st.download_button(
+            label="Download Event Plan",
+            data=plan_text,
+            file_name="event_plan.md",
+            mime="text/markdown",
+            help="Download your generated event plan as a Markdown (.md) file",
+            key="download_plan_top_btn",
+            use_container_width=True,
+        )
+
+    # Plan content
+    st.markdown(plan_text)
+    st.divider()
+
+    # Bottom disclaimer and download
+    disc_col, btm_dl_col = st.columns([3, 1])
+    with disc_col:
+        st.info(
+            "celebrait provides AI-generated planning estimates. "
+            "Vendor names, prices, availability, and local "
+            "recommendations must be independently verified."
+        )
+    with btm_dl_col:
+        st.download_button(
+            label="Download Event Plan",
+            data=plan_text,
+            file_name="event_plan.md",
+            mime="text/markdown",
+            help="Download your generated event plan as a Markdown (.md) file",
+            key="download_plan_bottom_btn",
+            use_container_width=True,
+        )
+
+
+def show_disclaimer():
+    """Render the disclaimer in a visually distinct info box."""
+    st.info(DISCLAIMER)
+
+
+# ---------------------------------------------------------------------------
+# 4. Sidebar event form
+# ---------------------------------------------------------------------------
+
+def render_event_form():
     """
     Render grouped event-detail inputs in the sidebar.
     Returns a dict of raw input values.
@@ -734,7 +930,7 @@ def render_sidebar():
 
 
 # ---------------------------------------------------------------------------
-# 4. Input validation
+# 5. Input validation
 # ---------------------------------------------------------------------------
 
 def validate_event_data(event_data):
@@ -783,7 +979,7 @@ def validate_event_data(event_data):
     if not event_data.get("currency") or not str(event_data.get("currency")).strip():
         errors.append("Currency: please select a currency.")
 
-    # City or region — required, whitespace already stripped by render_sidebar
+    # City or region — required, whitespace already stripped by render_event_form
     city = event_data.get("city")
     if not city or (isinstance(city, str) and not city.strip()):
         errors.append(
@@ -798,13 +994,8 @@ def validate_event_data(event_data):
 
 
 # ---------------------------------------------------------------------------
-# 5. Gemini service
+# 6. Gemini service
 # ---------------------------------------------------------------------------
-
-# The model identifier used here is Google's fast, stable Flash-Lite model,
-# optimized for ultra-low latency and high-throughput text generation.
-GEMINI_MODEL = "gemini-3.5-flash-lite"
-
 
 def load_api_key():
     """
@@ -955,12 +1146,14 @@ def handle_gemini_error(exc):
 
 def build_event_prompt(event_data):
     """
-    Build a concise, direct, seven-section event-planning prompt.
-    Optimized for low-latency generation without sacrificing any of the
-    required event-planning sections or safety precautions.
+    Build a concise seven-section event-planning prompt.
+
+    The event details (city, guests, budget, currency) are provided once
+    in the header block; section instructions reference them implicitly
+    to reduce token count and latency.
 
     Args:
-        event_data (dict): Validated event details from render_sidebar().
+        event_data (dict): Validated event details from render_event_form().
 
     Returns:
         str: The complete prompt string ready to send to Gemini.
@@ -968,56 +1161,51 @@ def build_event_prompt(event_data):
     days_until_event = (event_data["event_date"] - datetime.date.today()).days
 
     theme_line = (
-        f"Theme or vibe: {event_data['theme']}"
+        f"Theme: {event_data['theme']}"
         if event_data["theme"]
-        else "Theme or vibe: not specified"
+        else "Theme: not specified"
     )
     requirements_line = (
-        f"Special requirements: {event_data['requirements']}"
+        f"Requirements: {event_data['requirements']}"
         if event_data["requirements"]
-        else "Special requirements: none"
+        else "Requirements: none"
     )
 
-    prompt = (
-        "You are an experienced, practical event-planning assistant.\n\n"
-        "Create a concise, practical event plan in Markdown for this celebration:\n\n"
-        f"- Event type: {event_data['event_type']}\n"
-        f"- Event date: {event_data['event_date'].strftime('%d %B %Y')} "
-        f"({days_until_event} days from today)\n"
-        f"- Expected guests: {event_data['guests']}\n"
-        f"- Total budget: {event_data['currency']} {event_data['budget']:,.0f}\n"
-        f"- City or region: {event_data['city']}\n"
+    return (
+        "You are a practical event-planning assistant.\n\n"
+        "Create a concise, actionable event plan in Markdown:\n\n"
+        f"- Event: {event_data['event_type']}\n"
+        f"- Date: {event_data['event_date'].strftime('%d %B %Y')} "
+        f"({days_until_event} days away)\n"
+        f"- Guests: {event_data['guests']}\n"
+        f"- Budget: {event_data['currency']} {event_data['budget']:,.0f}\n"
+        f"- Location: {event_data['city']}\n"
         f"- {theme_line}\n"
         f"- {requirements_line}\n\n"
-        "Provide EXACTLY these seven sections using these exact headings:\n\n"
+        "Provide EXACTLY these seven sections:\n\n"
         "## Event Concept\n"
-        "Provide 3 brief theme ideas and 1 personalized signature concept (1-2 sentences each), "
-        f"tailored to {event_data['city']} and {event_data['guests']} guests.\n\n"
+        "3 theme ideas + 1 signature concept (1-2 sentences each), "
+        "tailored to the location and guest count.\n\n"
         "## Budget Plan\n"
-        "Provide a compact category-wise budget in a Markdown table with columns: "
-        "Category | Estimated Cost | Notes.\n"
-        f"Include 5-6 core categories. The total must not exceed {event_data['currency']} {event_data['budget']:,.0f}. "
-        f"Use {event_data['currency']} consistently throughout.\n\n"
+        "Markdown table: Category | Estimated Cost | Notes. "
+        "5-6 core categories within the total budget. "
+        "Use the specified currency consistently.\n\n"
         "## Planning Timeline\n"
-        f"Provide concise action milestones across 3-4 chronological phases based on {days_until_event} days remaining.\n\n"
+        "3-4 chronological milestone phases based on the days remaining.\n\n"
         "## Vendor Checklist\n"
-        f"List 4-5 key vendor categories for this event size in {event_data['city']}. "
-        "For each category, include a brief booking note and 2 essential vetting questions.\n\n"
+        "4-5 vendor categories with a booking note and "
+        "2 vetting questions each.\n\n"
         "## Day-of-Event Schedule\n"
-        f"Provide a practical, concise hour-by-hour schedule of key activities for the event day, "
-        f"scaled for {event_data['guests']} guests.\n\n"
+        "Hour-by-hour schedule of key activities.\n\n"
         "## Risk Checklist\n"
-        f"Identify 3-4 likely operational or weather risks in {event_data['city']} and 1 practical precaution for each.\n\n"
+        "3-4 likely operational or weather risks with "
+        "1 practical precaution each.\n\n"
         "## Money-Saving Tips\n"
-        f"Provide 5 practical, specific tips to optimize spending without compromising experience, "
-        f"tailored to {event_data['city']} and the budget.\n\n"
-        "Important rules:\n"
-        "- Treat all vendor names, prices, and availability as ESTIMATES only; none are guaranteed or verified.\n"
-        "- Keep every section concise, clear, and actionable. Avoid filler text and conversational fluff.\n"
-        "- Return clean Markdown only. Do not add any text before the first heading or after the last section."
+        "5 practical, specific cost-saving tips.\n\n"
+        "Rules: All vendor names, prices, and availability are ESTIMATES "
+        "requiring local verification. Be concise and actionable. "
+        "Return clean Markdown only — no text before ## Event Concept."
     )
-
-    return prompt
 
 
 def stream_event_plan(event_data, api_key, max_retries=2):
@@ -1063,306 +1251,118 @@ def stream_event_plan(event_data, api_key, max_retries=2):
         raise last_error
 
 
-def generate_event_plan(event_data, api_key, max_retries=2):
-    """
-    Generate the complete event plan text (non-streaming).
-    Accumulates streaming chunks to provide a reliable non-streaming interface.
-
-    Args:
-        event_data (dict): Validated event details.
-        api_key (str): The Gemini API key.
-        max_retries (int): Maximum retry attempts for transient server errors.
-
-    Returns:
-        str: The complete event plan text.
-    """
-    chunks = []
-    for chunk in stream_event_plan(event_data, api_key, max_retries=max_retries):
-        chunks.append(chunk)
-    return "".join(chunks)
-
-
 # ---------------------------------------------------------------------------
-# 6. Main application area
+# 7. Main application
 # ---------------------------------------------------------------------------
 
-def main():
-    # ---- Custom styling ----------------------------------------------------
-    inject_custom_styles()
+def handle_generation(event_data):
+    """
+    Validate inputs, call Gemini via streaming, and store the generated
+    plan in session state. Handles validation errors, missing API key,
+    empty responses, and Gemini exceptions with safe user-facing messages.
+    """
+    is_valid, validation_errors = validate_event_data(event_data)
 
-    # ---- App header --------------------------------------------------------
-    st.markdown(
+    if not is_valid:
+        error_lines = "\n".join(f"- {e}" for e in validation_errors)
+        st.warning(
+            "**Please complete the following details before generating "
+            f"your event plan:**\n\n{error_lines}"
+        )
+        return
+
+    api_key = load_api_key()
+    if not api_key:
+        st.error(
+            "Gemini API key not found.\n\n"
+            "**To run locally:** Set the environment variable before "
+            "starting Streamlit:\n"
+            "```\n"
+            "set GEMINI_API_KEY=your_key_here   # Windows\n"
+            "export GEMINI_API_KEY=your_key_here  # macOS / Linux\n"
+            "streamlit run app.py\n"
+            "```\n"
+            "**On Streamlit Community Cloud:** Add `GEMINI_API_KEY` "
+            "in the app's Secrets settings (Settings → Secrets).\n\n"
+            "Get a free key at https://aistudio.google.com/apikey"
+        )
+        return
+
+    # Clear previous plan
+    st.session_state["event_plan"] = None
+
+    # Status indicator while streaming starts
+    status_placeholder = st.empty()
+    status_placeholder.markdown(
         """
-        <div class="atelier-hero-wrap">
-            <div class="atelier-crest">
-                <span class="atelier-crest-spark">✦</span>
-                <span>GENAI CELEBRATION ATELIER</span>
-                <span class="atelier-crest-spark">✦</span>
+        <div class="atelier-plan-banner">
+            <div class="banner-status">
+                <span class="status-beacon"></span>
+                <span class="status-text">GENERATING YOUR EVENT PLAN…</span>
             </div>
-            <h1 class="atelier-brand-title">celebrait</h1>
-            <p class="atelier-tagline">
-                Orchestrating bespoke celebrations with cinematic vision, fiscal rigor, and tailored local intelligence.
-            </p>
+            <div class="banner-meta">Streaming your personalized celebration outline from Gemini in real time…</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # ---- Sidebar form ------------------------------------------------------
-    event_data = render_sidebar()
+    stream_placeholder = st.empty()
+    try:
+        with stream_placeholder.container():
+            plan_text = st.write_stream(
+                stream_event_plan(event_data, api_key)
+            )
+
+        status_placeholder.empty()
+
+        if not plan_text or not plan_text.strip():
+            stream_placeholder.empty()
+            st.warning(
+                "Gemini returned an empty response. "
+                "Please try again in a moment."
+            )
+        else:
+            st.session_state["event_plan"] = plan_text
+            st.rerun()
+
+    except Exception as exc:
+        status_placeholder.empty()
+        stream_placeholder.empty()
+        # Categorise the error safely without exposing raw credentials,
+        # headers, or stack traces
+        user_message, terminal_category = handle_gemini_error(exc)
+        print(f"[celebrait] {terminal_category}")
+        st.error(user_message)
+
+
+def main():
+    """Application entry point — orchestrates layout and event generation flow."""
+    inject_custom_styles()
+    render_header()
+
+    # Sidebar form and state
+    event_data = render_event_form()
     sidebar_generate = st.session_state.get("_sidebar_generate", False)
 
-    # Initialize plan state in session_state if not already present
     if "event_plan" not in st.session_state:
         st.session_state["event_plan"] = None
 
     has_plan = bool(st.session_state.get("event_plan"))
 
-    # ---- Introductory Overview (shown only before generation) --------------
+    # Pre-generation overview (shown only before first generation)
     main_generate = False
     if not has_plan:
-        # Dynamic Live Intelligence calculations from sidebar inputs
-        today = datetime.date.today()
-        event_date = event_data.get("event_date", today + datetime.timedelta(days=30))
-        days_until = max(0, (event_date - today).days)
-        guests = max(1, int(event_data.get("guests", 50)))
-        budget = float(event_data.get("budget", 50000))
-        unit_spend = budget / guests if guests > 0 else 0
-        raw_currency = str(event_data.get("currency", "INR (Rs.)"))
-        currency_code = raw_currency.split()[0]
-        city_display = event_data.get("city") or "Location Pending"
+        main_generate = render_event_intelligence(event_data)
 
-        # 1. Live Event Intelligence HUD Ribbon
-        st.markdown(
-            f"""
-            <div class="atelier-hud">
-                <div class="hud-metric">
-                    <span class="hud-label">OCCASION</span>
-                    <span class="hud-val">{event_data.get('event_type', 'Celebration')}</span>
-                </div>
-                <div class="hud-sep"></div>
-                <div class="hud-metric">
-                    <span class="hud-label">COUNTDOWN</span>
-                    <span class="hud-val">{days_until} Days</span>
-                </div>
-                <div class="hud-sep"></div>
-                <div class="hud-metric">
-                    <span class="hud-label">SCALE</span>
-                    <span class="hud-val">{guests:,} Guests</span>
-                </div>
-                <div class="hud-sep"></div>
-                <div class="hud-metric">
-                    <span class="hud-label">ALLOCATION / HEAD</span>
-                    <span class="hud-val">{currency_code} {unit_spend:,.0f}</span>
-                </div>
-                <div class="hud-sep"></div>
-                <div class="hud-metric">
-                    <span class="hud-label">TERRITORY</span>
-                    <span class="hud-val">{city_display}</span>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    # Handle generation on button click
+    if sidebar_generate or main_generate:
+        handle_generation(event_data)
 
-        # 2. Curation Inspiration Seeds
-        st.markdown(
-            """
-            <div class="atelier-seeds-bar">
-                <span class="seeds-title">CURATION SEEDS:</span>
-                <span class="seed-chip">👑 Heritage Royal Palace</span>
-                <span class="seed-chip">✨ Midnight Terrace Soirée</span>
-                <span class="seed-chip">🌿 Bohemian Meadow Gathering</span>
-                <span class="seed-chip">⚡ High-Voltage Milestone Gala</span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        # 3. Four Curated Atelier Dossier Cards (Staggered CSS reveal)
-        st.markdown(
-            """
-            <div class="atelier-cards-grid">
-                <div class="atelier-card card-reveal-1">
-                    <div class="card-num">01</div>
-                    <div class="card-micro-tag">CREATIVE DIRECTION</div>
-                    <div class="card-heading">Bespoke Concept</div>
-                    <p class="card-body">Tailored visual themes, signature motifs, and atmospheric narratives grounded in your occasion.</p>
-                </div>
-                <div class="atelier-card card-reveal-2">
-                    <div class="card-num">02</div>
-                    <div class="card-micro-tag">FISCAL ARCHITECTURE</div>
-                    <div class="card-heading">Budget Allocation</div>
-                    <p class="card-body">Category spend plan scaled precisely to your attendee count with non-negotiable budget caps.</p>
-                </div>
-                <div class="atelier-card card-reveal-3">
-                    <div class="card-num">03</div>
-                    <div class="card-micro-tag">SUPPLIER DOSSIER</div>
-                    <div class="card-heading">Vendor Checklist</div>
-                    <p class="card-body">Essential service categories, local booking recommendations, and incisive vetting questions.</p>
-                </div>
-                <div class="atelier-card card-reveal-4">
-                    <div class="card-num">04</div>
-                    <div class="card-micro-tag">OPERATIONAL RUN-OF-SHOW</div>
-                    <div class="card-heading">Schedule & Risks</div>
-                    <p class="card-body">Hour-by-hour choreography, local risk mitigation, and insider cost-saving maneuvers.</p>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        st.markdown("<div style='margin-top: 0.5rem;'></div>", unsafe_allow_html=True)
-        main_generate = st.button(
-            "Generate Event Plan",
-            type="primary",
-            use_container_width=False,
-            key="main_generate_btn",
-        )
-
-    # ---- Button logic ------------------------------------------------------
-    generate_clicked = sidebar_generate or main_generate
-
-    if generate_clicked:
-        is_valid, validation_errors = validate_event_data(event_data)
-
-        if not is_valid:
-            # Show all validation problems together with calm, helpful phrasing
-            error_lines = "\n".join(f"- {e}" for e in validation_errors)
-            st.warning(
-                f"**Please complete the following details before generating your event plan:**\n\n"
-                f"{error_lines}"
-            )
-        else:
-            # Validation passed — load the API key and call Gemini
-            api_key = load_api_key()
-
-            if not api_key:
-                # Show setup guidance and stop — never crash or expose details
-                st.error(
-                    "Gemini API key not found.\n\n"
-                    "**To run locally:** Set the environment variable before "
-                    "starting Streamlit:\n"
-                    "```\n"
-                    "set GEMINI_API_KEY=your_key_here   # Windows\n"
-                    "export GEMINI_API_KEY=your_key_here  # macOS / Linux\n"
-                    "streamlit run app.py\n"
-                    "```\n"
-                    "**On Streamlit Community Cloud:** Add `GEMINI_API_KEY` "
-                    "in the app's Secrets settings (Settings → Secrets).\n\n"
-                    "Get a free key at https://aistudio.google.com/apikey"
-                )
-            else:
-                # Clear previous plan if any
-                st.session_state["event_plan"] = None
-
-                # Show clear, honest status indicator while streaming starts
-                status_placeholder = st.empty()
-                status_placeholder.markdown(
-                    """
-                    <div class="atelier-plan-banner">
-                        <div class="banner-status">
-                            <span class="status-beacon"></span>
-                            <span class="status-text">GENERATING YOUR EVENT PLAN…</span>
-                        </div>
-                        <div class="banner-meta">Streaming your personalized celebration outline from Gemini in real time…</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-
-                stream_placeholder = st.empty()
-                plan_text = ""
-                try:
-                    with stream_placeholder.container():
-                        plan_text = st.write_stream(stream_event_plan(event_data, api_key))
-
-                    status_placeholder.empty()
-
-                    if not plan_text or not plan_text.strip():
-                        stream_placeholder.empty()
-                        # Empty response — ask user to retry
-                        st.warning(
-                            "Gemini returned an empty response. "
-                            "Please try again in a moment."
-                        )
-                    else:
-                        st.session_state["event_plan"] = plan_text
-                        st.rerun()
-
-                except Exception as exc:
-                    status_placeholder.empty()
-                    stream_placeholder.empty()
-                    # Categorise the error safely without exposing raw credentials,
-                    # headers, or stack traces
-                    user_message, terminal_category = handle_gemini_error(exc)
-                    print(f"[celebrait] {terminal_category}")
-                    st.error(user_message)
-
-    # ---- Display generated plan (replaces intro overview after generation) ---
+    # Display the compiled event plan
     if has_plan:
-        plan_text = st.session_state["event_plan"]
+        render_event_plan(event_data, st.session_state["event_plan"])
 
-        # Compiled dossier status banner
-        city_tag = event_data.get("city") or "Local Region"
-        budget_val = float(event_data.get("budget", 50000))
-        currency_str = event_data.get("currency", "INR (Rs.)")
-        guests_val = event_data.get("guests", 50)
-
-        st.markdown(
-            f"""
-            <div class="atelier-plan-banner">
-                <div class="banner-status">
-                    <span class="status-beacon"></span>
-                    <span class="status-text">EVENT DOSSIER COMPILED • GEMINI 3.5 FLASH-LITE</span>
-                </div>
-                <div class="banner-meta">
-                    Cap: <strong>{currency_str} {budget_val:,.0f}</strong> &bull; Scaled for <strong>{guests_val} guests</strong> &bull; {city_tag}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        # Top row: clear heading and immediately visible Download button
-        top_head_col, top_dl_col = st.columns([3, 1])
-        with top_head_col:
-            st.subheader("Your Event Plan")
-        with top_dl_col:
-            st.download_button(
-                label="Download Event Plan",
-                data=plan_text,
-                file_name="event_plan.md",
-                mime="text/markdown",
-                help="Download your generated event plan as a Markdown (.md) file",
-                key="download_plan_top_btn",
-                use_container_width=True,
-            )
-
-        # Markdown plan output
-        st.markdown(plan_text)
-        st.divider()
-
-        # Bottom row: inline verification disclaimer and secondary Download button
-        disc_col, btm_dl_col = st.columns([3, 1])
-        with disc_col:
-            st.info(
-                "celebrait provides AI-generated planning estimates. "
-                "Vendor names, prices, availability, and local "
-                "recommendations must be independently verified."
-            )
-        with btm_dl_col:
-            st.download_button(
-                label="Download Event Plan",
-                data=plan_text,
-                file_name="event_plan.md",
-                mime="text/markdown",
-                help="Download your generated event plan as a Markdown (.md) file",
-                key="download_plan_bottom_btn",
-                use_container_width=True,
-            )
-
-    # ---- Footer disclaimer -------------------------------------------------
+    # Footer disclaimer
     st.divider()
     show_disclaimer()
 
